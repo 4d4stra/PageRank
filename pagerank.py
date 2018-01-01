@@ -2,6 +2,7 @@ import os
 import sys
 import math
 
+import numpy as np
 import numpy
 import pandas
 
@@ -53,7 +54,14 @@ def __integrateRandomSurfer(nodes, transitionProbs, rsp):
     alpha = 1.0 / float(len(nodes)) * rsp
     return transitionProbs.copy().multiply(1.0 - rsp) + alpha
 
-def powerIteration(transitionWeights, rsp=0.15, epsilon=0.00001, maxIterations=1000):
+def __integrateRandomSurfer_nonuniform(nodes, transitionProbs, rsp_mat, rsp):
+    #in this case, want the rows to sum to rsp
+    norm=np.sum(rsp_mat,axis=1).reshape((len(rsp_mat),1))
+    alpha=rsp_mat/norm
+    alpha=alpha*rsp
+    return np.add(transitionProbs.copy().multiply(1.0 - rsp),alpha)
+
+def powerIteration(transitionWeights, rsp=0.15, epsilon=0.00001, maxIterations=1000,rsp_mat=None):
     # Clerical work:
     transitionWeights = pandas.DataFrame(transitionWeights)
     nodes = __extractNodes(transitionWeights)
@@ -63,7 +71,10 @@ def powerIteration(transitionWeights, rsp=0.15, epsilon=0.00001, maxIterations=1
     # Setup:
     state = __startState(nodes)
     transitionProbs = __normalizeRows(transitionWeights)
-    transitionProbs = __integrateRandomSurfer(nodes, transitionProbs, rsp)
+    if rsp_mat is None:
+        transitionProbs = __integrateRandomSurfer(nodes, transitionProbs, rsp)
+    else:
+        transitionProbs = __integrateRandomSurfer_nonuniform(nodes, transitionProbs, rsp_mat, rsp)
     
     # Power iteration:
     for iteration in range(maxIterations):
@@ -73,3 +84,4 @@ def powerIteration(transitionWeights, rsp=0.15, epsilon=0.00001, maxIterations=1
         if __euclideanNorm(delta) < epsilon: break
 
     return state
+
