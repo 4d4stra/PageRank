@@ -76,7 +76,7 @@ def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"]):
 
     # Apply PageRank to the weighted graph:
     wordProbabilities = pagerank.powerIteration(edgeWeights, rsp=rsp)
-    wordProbabilities.sort(ascending=False)
+    wordProbabilities.sort_values(inplace=True,ascending=False)
 
     return wordProbabilities
 
@@ -97,21 +97,21 @@ def __tokenizeWords(sentence):
 ## tests ########################################################################################
 
 def applyTextRank(fileName, title="a document"):
-    print
-    print "Reading \"%s\" ..." % title
+    print("\n")
+    print("Reading \"%s\" ..." % title)
     filePath = os.path.join(os.path.dirname(__file__), fileName)
     document = open(filePath).read()
     document = __asciiOnly(document)
     
-    print "Applying TextRank to \"%s\" ..." % title
+    print("Applying TextRank to \"%s\" ..." % title)
     keywordScores = textrank(document)
     
-    print
+    print("\n")
     header = "Keyword Significance Scores for \"%s\":" % title
-    print header
-    print "-" * len(header)
-    print keywordScores
-    print
+    print(header)
+    print("-" * len(header))
+    print(keywordScores)
+    print("\n")
 
 def main():
     applyTextRank("Cinderalla.txt", "Cinderalla")
