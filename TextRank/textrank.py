@@ -96,7 +96,7 @@ def __tokenizeWords(sentence):
 
 ## tests ########################################################################################
 
-def applyTextRank(fileName, title="a document"):
+def applyTextRank(fileName, title="a document",output=False):
     print("\n")
     print("Reading \"%s\" ..." % title)
     filePath = os.path.join(os.path.dirname(__file__), fileName)
@@ -105,6 +105,9 @@ def applyTextRank(fileName, title="a document"):
     
     print("Applying TextRank to \"%s\" ..." % title)
     keywordScores = textrank(document)
+
+    if output:
+        return keywordScores
     
     print("\n")
     header = "Keyword Significance Scores for \"%s\":" % title
