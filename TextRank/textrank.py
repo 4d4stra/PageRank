@@ -46,7 +46,7 @@ def __preprocessDocument(document, relevantPosTags):
 
     return filteredWords
 
-def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"]):
+def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],bigrams=False):
     '''
     This function accepts a string representation
     of a document and three hyperperameters as input.
@@ -73,6 +73,12 @@ def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"]):
             if otherIndex >= 0 and otherIndex < len(words) and otherIndex != index:
                 otherWord = words[otherIndex]
                 edgeWeights[word][otherWord] += 1.0
+                if bigrams and "_" in word:
+                    w1=word.split("_")[0]
+                    w2=word.split("_")[1]
+                    edgeWeights[w1][w2]+=1.0
+                    edgeWeights[word][w1]+=1.0
+                    edgeWeights[word][w2]+=1.0
 
     # Apply PageRank to the weighted graph:
     wordProbabilities = pagerank.powerIteration(edgeWeights, rsp=rsp)
