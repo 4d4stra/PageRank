@@ -46,7 +46,7 @@ def __preprocessDocument(document, relevantPosTags):
 
     return filteredWords
 
-def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],bigrams=False):
+def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],bigrams=None):
     '''
     This function accepts a string representation
     of a document and three hyperperameters as input.
@@ -60,6 +60,11 @@ def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],big
     
     # Tokenize document:
     words = __preprocessDocument(document, relevantPosTags)
+    #words returns a list of adjacent tokens
+
+    #bigram document if using
+    if bigrams:
+        words=bigrams[words]
     
     # Build a weighted graph where nodes are words and
     # edge weights are the number of times words cooccur
