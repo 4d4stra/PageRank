@@ -46,7 +46,7 @@ def __preprocessDocument(document, relevantPosTags):
 
     return filteredWords
 
-def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],bigrams=None):
+def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],ngrams=[]):
     '''
     This function accepts a string representation
     of a document and three hyperperameters as input.
@@ -60,11 +60,12 @@ def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],big
     
     # Tokenize document:
     words = __preprocessDocument(document, relevantPosTags)
+    print(words)
     #words returns a list of adjacent tokens
 
-    #bigram document if using
-    if bigrams:
-        words=bigrams[words]
+    #ngram document if using
+    for ngram in ngrams:
+        words=ngram[words]
     
     # Build a weighted graph where nodes are words and
     # edge weights are the number of times words cooccur
@@ -78,12 +79,20 @@ def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],big
             if otherIndex >= 0 and otherIndex < len(words) and otherIndex != index:
                 otherWord = words[otherIndex]
                 edgeWeights[word][otherWord] += 1.0
-                if bigrams and "_" in word:
-                    w1=word.split("_")[0]
-                    w2=word.split("_")[1]
-                    edgeWeights[w1][w2]+=1.0
-                    edgeWeights[word][w1]+=1.0
-                    edgeWeights[word][w2]+=1.0
+                # boosting ngram rank
+                if len(ngrams)>0 and "_" in word:
+                    w_list=word.split("_")
+                    for i in range(len(w_list)-1):
+                        k=i+1
+                        w1=w_list[i]
+                        w2=w_list[k]
+                        edgeWeights[w1][w2]+=1.0
+                        edgeWeights[word][w1]+=1.0
+                        edgeWeights[w2][w1]+=1.0
+                        edgeWeights[w1][word]+=1.0
+                        if i==len(w_list)-1:
+                            edgeWeights[word][w2]+=1.0
+                            edgeWeights[w2][word]+=1.0
 
     # Apply PageRank to the weighted graph:
     wordProbabilities = pagerank.powerIteration(edgeWeights, rsp=rsp)
