@@ -3,8 +3,10 @@ import sys
 import copy
 import collections
 
-import nltk
-import nltk.tokenize
+#import nltk
+#import nltk.tokenize
+import spacy
+nlp=spacy.load('en_core_web_lg')
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pagerank
@@ -26,7 +28,7 @@ import pagerank
 
 ## TextRank #####################################################################################
     
-def __preprocessDocument(document, relevantPosTags):
+def __preprocessDocument_nltk(document, relevantPosTags):#"NN", "ADJ"
     '''
     This function accepts a string representation 
     of a document as input, and returns a tokenized
@@ -46,7 +48,28 @@ def __preprocessDocument(document, relevantPosTags):
 
     return filteredWords
 
-def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],ngrams=[]):
+def __preprocessDocument_spacy(document, relevantPosTags):
+    '''
+    This function accepts a string representation 
+    of a document as input, and returns a tokenized
+    list of words corresponding to that document.
+    '''
+    doc=nlp(document)
+    words = [i.text for i in doc]
+    posTags = [i.pos_ for i in doc]
+    print(set(posTags))
+    
+    # Filter out words with irrelevant POS tags
+    filteredWords = []
+    for index, word in enumerate(words):
+        word = word.lower()
+        tag = posTags[index]
+        if not __isPunctuation(word) and tag in relevantPosTags:
+            filteredWords.append(word)
+
+    return filteredWords
+
+def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NOUN","ADJ","PROPN"],ngrams=[]):
     '''
     This function accepts a string representation
     of a document and three hyperperameters as input.
@@ -59,7 +82,7 @@ def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NN", "ADJ"],ngr
     '''
     
     # Tokenize document:
-    words = __preprocessDocument(document, relevantPosTags)
+    words = __preprocessDocument_spacy(document, relevantPosTags)
     print(words)
     #words returns a list of adjacent tokens
 
@@ -106,7 +129,7 @@ def __asciiOnly(string):
     return "".join([char if ord(char) < 128 else "" for char in string])
 
 def __isPunctuation(word):
-    return word in [".", "?", "!", ",", "\"", ":", ";", "'", "-"]
+    return word in [".", "?", "!", ",", "\"", ":", ";", "'", "-","”","“"]
 
 def __tagPartsOfSpeech(words):
     return [pair[1] for pair in nltk.pos_tag(words)]
