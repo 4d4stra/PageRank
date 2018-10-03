@@ -57,7 +57,6 @@ def __preprocessDocument_spacy(document, relevantPosTags):
     doc=nlp(document)
     words = [i.text for i in doc]
     posTags = [i.pos_ for i in doc]
-    print(set(posTags))
     
     # Filter out words with irrelevant POS tags
     filteredWords = []
@@ -83,7 +82,6 @@ def textrank(document, windowSize=2, rsp=0.15, relevantPosTags=["NOUN","ADJ","PR
     
     # Tokenize document:
     words = __preprocessDocument_spacy(document, relevantPosTags)
-    print(words)
     #words returns a list of adjacent tokens
 
     #ngram document if using
